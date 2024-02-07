@@ -1,18 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Detail</title>
-</head>
-<body>
-    <h1>Device Detail</h1>
+{% extends "main.html" %}
+{%block content%}
+<h1>Device Detail</h1>
     <p>Name: {{ device.name }}</p>
     <p>Condition: {{ device.health_condition }}</p>
     <a href="{% url 'device_update' device.id %}">Edit</a>
-    {% comment %} <form action="{% url 'device_delete' device.id %}" method="post">
+    <form action="{% url 'device_detail' device.id %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
         <input type="submit" value="Delete">
-    </form> {% endcomment %}
-</body>
-</html>
+    </form>
+{%endblock content%}

@@ -33,7 +33,7 @@ ROOT_URLCONF = 'repliq.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ 'base/templates'],
+        'DIRS': ['templates', 'base/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
