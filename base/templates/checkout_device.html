@@ -1,9 +1,9 @@
 {% extends "main.html" %}
 {%block content%}
 <h1>Checkout Device</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Submit">
-    </form>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Checkout</button>
+</form>
 {%endblock content%}

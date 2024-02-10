@@ -1,0 +1,70 @@
+{% extends "main.html" %}
+{% block content %}
+<style>
+    .lower-container{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    .upper-container{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+</style>
+
+<div class ='upper-container'>
+    <div>
+        <h2>Companies</h2>
+        <ul>
+        {% for company in companies %}
+            <li><a href="{% url 'company_details' company.id %}">{{ company.name }}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div> <a href="{% url 'checkout_device' %}"><h2>Checkout a device</h2></a>
+    </div>
+    <div>{{request.user.username}}</div>
+</div>
+
+<div class ='lower-container'>
+    <div>
+        <h2>Available Devices</h2>
+        <ul>
+            {% for device in devices %}
+                {%if not device.checked_out%}
+                <li>
+                    <a href="{% url 'device_details' device.id %}">{{ device.name }}</a>
+                </li>
+                {%endif%}
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'device_create' %}">Add Device</a>
+    </div>
+    <div>
+        <h2>Checked out Devices</h2>
+        <ul>
+            {% for device in checked_out_devices %}
+                <li>
+                    <a href="{% url 'device_details' device.device.id %}">{{ device.device.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>Checkout Log</h2>
+        <ul>
+            {% for device in checked_out_devices %}
+                <li>
+                    <a href="{% url 'device_details' device.id %}">{{ device.device.name }}</a>
+                    from: {{device.assigned_date}} to: {{device.return_date}} 
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+
+
+{% endblock content %}

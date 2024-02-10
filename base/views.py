@@ -4,8 +4,9 @@ from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Company, Employee, Device, CheckoutLog
+from .models import Company, Employee, Device, CheckoutLog, Staff
 from .forms import DeviceForm, CheckoutForm
 
 class RegisterPage(View):
@@ -50,26 +51,29 @@ class Logout(View):
         return redirect('home')
 
 
-class DeviceListView(View):
-    template_name='device_list.html'
+class Home(View):
+    template_name='home.html'
     
     def get(self, request):
         devices = Device.objects.all()
-        context = {'devices': devices}
+        companies = Company.objects.all()
+        checked_out_devices = CheckoutLog.objects.all()
+        context = {'devices': devices, 'companies': companies, 'checked_out_devices':checked_out_devices}
         return render(request, self.template_name, context)
-
 class DeviceDetailView(View):
     template_name='device_details.html'
+    page = 'device_details'
+
     
     def get(self, request, device_id):
         device = get_object_or_404(Device, id=device_id)
-        context= {'device': device}
+        context= {'device': device, 'page': self.page}
         return render(request, self.template_name, context)
     
     def post(self, request, device_id):
         device = get_object_or_404(Device, pk=device_id)
         device.delete()
-        return redirect('device_list')
+        return redirect('home')
 
 class DeviceCreateView(View):
     template_name='device_form.html'
@@ -82,7 +86,7 @@ class DeviceCreateView(View):
         form = DeviceForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('device_list')
+            return redirect('home')
         context={'form': form}
         return render(request, self.template_name, context)
 
@@ -98,17 +102,48 @@ class DeviceUpdateView(View):
         device = get_object_or_404(Device, pk=device_id)
         form = DeviceForm(request.POST, instance=device)
     
-class CompanyListView(View):
-    template_name = 'device_list.html'
-    
-    def get(self, request):
-        companies = Company.objects.all()
-        return render(request, self.template_name, {'companies': companies})
 
 class CompanyDetailView(View):
-    template_name = 'company_detail.html'
+    template_name = 'device_details.html'
+    page = 'company_details'
     
     def get(self, request, company_id):
         company = get_object_or_404(Company, pk=company_id)
-        devices = company.devices.all()
-        return render(request, self.template_name, {'company': company, 'devices': devices})
+        employees=Employee.objects.filter(company=company)
+        context={'company': company, 'employees': employees, 'page': self.page}
+        return render(request, self.template_name,context)
+
+class DeviceCheckoutView(View):
+    template_name = 'checkout_device.html'
+
+    def get(self, request):
+        form = CheckoutForm()
+        context= {'form': form}
+        return render(request, self.template_name,context)
+
+    def post(self, request):
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            try:
+                staff_member = Staff.objects.get(user=request.user)
+                
+            except ObjectDoesNotExist:
+                return HttpResponse("You don't have permission to perform this action.")
+            
+            checkout_instance = form.save(commit=False)
+            checkout_instance.assigned_by = staff_member
+            
+            device_id= form.cleaned_data['device']
+            device = Device.objects.get(id=device_id.id)
+            device.checked_out=True
+            device.save()
+            
+            checkout_instance.device= device
+            checkout_instance.employee= form.cleaned_data['employee']
+             
+            checkout_instance.save()
+            
+            return redirect('home')
+        context = {'form': form}
+        return render(request, self.template_name, context)
+    

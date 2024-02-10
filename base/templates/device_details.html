@@ -1,12 +1,26 @@
 {% extends "main.html" %}
 {%block content%}
-<h1>Device Detail</h1>
-    <p>Name: {{ device.name }}</p>
-    <p>Condition: {{ device.health_condition }}</p>
-    <a href="{% url 'device_update' device.id %}">Edit</a>
-    <form action="{% url 'device_detail' device.id %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="delete">
-        <input type="submit" value="Delete">
-    </form>
+
+{%if page == 'device_details'%}
+    <h1>Device Detail</h1>
+        <p>Name: {{ device.name }}</p>
+        <p>Condition: {{ device.health_condition }}</p>
+        <a href="{% url 'device_update' device.id %}">Edit</a>
+        <form action="{% url 'device_details' device.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="submit" value="Delete">
+        </form>
+{%else%}
+    <h1>{{ company.name }} Details</h1>
+    <p><strong>Name:</strong> {{ company.name }}</p>
+    <hr>   
+    
+    <strong>List of Employees</strong>
+
+    {%for employee in employees%}
+    <li> {{employee.name}} </li>
+    {%endfor%}
+    {% comment %} <p><a href="{% url 'company_update' company.id %}">Edit</a></p> {% endcomment %}
+{%endif%}
 {%endblock content%}
