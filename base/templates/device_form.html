@@ -1,13 +1,13 @@
 {% extends "main.html" %}
 {%block content%}
 
-{%if page == 'device_create'%}
-<h1>Add Device</h1>
-{%elif page == 'company_create'%}
-<h1>Add Company</h1>
+{%if page == 'device_form'%}
+    <div><h1>Add Device</h1></div>
+{%elif page == 'company_form'%}
+    <div><h1>Add Company</h1></div>
 
-{%elif page == 'employee_create'%}
-<h1>Add Employee</h1>
+{%else%}
+    <h1>Add Employee</h1>
 {%endif%}
 
 <form method="post">

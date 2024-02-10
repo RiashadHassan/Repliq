@@ -81,7 +81,7 @@ class DeviceCreateView(View):
     page='device_form'
     def get(self, request):
         form = DeviceForm()
-        context ={'form': form}
+        context ={'form': form, 'page':self.page}
         return render(request, self.template_name, context)
 
     def post(self, request):
@@ -92,6 +92,18 @@ class DeviceCreateView(View):
         context={'form': form}
         return render(request, self.template_name, context)
     
+    
+''' For concern of sepration I have decided to use three different views(deviceCreate, companyCreate, employeeCreate)
+to handle the same task with just different forms
+
+I could have used 'if 'device_create' in request.post:
+                  'if 'company_create' in request.post:
+                  'if 'employee_create' in request.post:
+and that would've resulted in significantly fewer lines of code, but i decided not to go that route :) 
+
+'''
+
+
 class CompanyCreateView(View):
     template_name='device_form.html'
     page='company_form'
@@ -183,11 +195,6 @@ class CheckoutView(View):
         return render(request, self.template_name, context)
     
 class ReturnView(View):
-    template_name='return_device.html'
-    def get(self, request, checkout_log_id):
-        checkout_log_device = get_object_or_404(CheckoutLog,id=checkout_log_id)
-        context={'checkout_log_id': checkout_log_id}
-        return render(request, self.template_name, context)
     
     def post(self, request, checkout_log_id):
         checkout_log_device = get_object_or_404(CheckoutLog,id=checkout_log_id)
