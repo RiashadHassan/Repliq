@@ -58,7 +58,7 @@ class Home(View):
     def get(self, request):
         devices = Device.objects.all()
         companies = Company.objects.all()
-        checked_out_devices = CheckoutLog.objects.filter(return_date__isnull=True)
+        checked_out_devices = CheckoutLog.objects.filter(return_date__isnull=True).order_by('assigned_date')
         context = {'devices': devices, 'companies': companies, 'checked_out_devices':checked_out_devices}
         return render(request, self.template_name, context)
     
@@ -96,7 +96,7 @@ class DeviceCreateView(View):
 ''' For concern of sepration I have decided to use three different views(deviceCreate, companyCreate, employeeCreate)
 to handle the same task with just different forms
 
-I could have used 'if 'device_create' in request.post:
+I could have used 'if 'device_create(name)' in request.post:
                   'if 'company_create' in request.post:
                   'if 'employee_create' in request.post:
 and that would've resulted in significantly fewer lines of code, but i decided not to go that route :) 

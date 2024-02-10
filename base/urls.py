@@ -16,7 +16,7 @@ urlpatterns = [
     path('device/<int:pk>/update/', views.DeviceUpdateView.as_view(), name='device_update'),
    
     path('checkout', views.CheckoutView.as_view(), name='checkout_device'),    
-    # path('return/<int:checkout_log_id/>', views.ReturnView.as_view(), name='return_device'),
+    path('return/<int:checkout_log_id>/', views.ReturnView.as_view(), name='return_device'),
     
     path('login/', views.LoginPage.as_view(), name='login'),
     path('register/', views.RegisterPage.as_view(), name='register'),

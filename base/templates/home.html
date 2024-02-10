@@ -1,11 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 <style>
-    .lower-container{
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-    .upper-container{
+    .lower-container,.upper-container{
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
     }
@@ -26,9 +22,13 @@
     <div> <a href="{% url 'checkout_device' %}"><h2>Checkout a device</h2></a>
     </div>
     <div>
+        {%if request.user.is_authenticated%}
         <strong>{{request.user.username}}</strong>
         <button > <a href="{%url 'logout'%}"> Logout </a></button>
-    
+        {%else%}
+        <button > <a href="{%url 'login'%}"> Login </a></button>
+        <button > <a href="{%url 'register'%}"> Register </a></button>
+        {%endif%}
     </div>
 </div>
 
@@ -50,14 +50,19 @@
     <div>
         <h2>Checked out Devices</h2>
         <ul>
-            {% for checked_out_device in checked_out_devices %}
+            {% for checkout_log in checked_out_devices %}
                 <li>
-                    <a href="{% url 'device_details' checked_out_device.device.id %}">{{ checked_out_device.device.name }}</a> 
+                    <a href="{% url 'device_details' checkout_log.device.id %}">{{ checkout_log.device.name }}</a>
+                    <form method="post" action="{% url 'return_device' checkout_log.id %}">
+                        {% csrf_token %}
+                        <input type="submit" value="Return">
+                    </form> 
                 </li>
             {% endfor %}
         </ul>      
     </div>
-
+    
+    
     <div>
         <h2>Checkout Log</h2>
         <ul>
