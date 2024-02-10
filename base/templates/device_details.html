@@ -21,6 +21,7 @@
     {%for employee in employees%}
     <li> {{employee.name}} </li>
     {%endfor%}
-    {% comment %} <p><a href="{% url 'company_update' company.id %}">Edit</a></p> {% endcomment %}
+    <a href="{% url 'employee_create' %}">Add Employee</a>
+
 {%endif%}
 {%endblock content%}

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Company, Employee, Device, CheckoutLog, Staff
-from .forms import DeviceForm, CheckoutForm
+from .forms import DeviceForm, CheckoutForm, CompanyForm, EmployeeForm
 
 class RegisterPage(View):
     template_name= 'login_register.html'
@@ -23,6 +23,7 @@ class RegisterPage(View):
         if form.is_valid():
             new_user=form.save()
             login(request,new_user)
+            return redirect ('home')
         context={'page':self.page, 'form': form}
         return render(request, self.template_name, context)
 
@@ -50,20 +51,20 @@ class Logout(View):
         logout(request)
         return redirect('home')
 
-
 class Home(View):
+
     template_name='home.html'
     
     def get(self, request):
         devices = Device.objects.all()
         companies = Company.objects.all()
-        checked_out_devices = CheckoutLog.objects.all()
+        checked_out_devices = CheckoutLog.objects.filter(return_date__isnull=True)
         context = {'devices': devices, 'companies': companies, 'checked_out_devices':checked_out_devices}
         return render(request, self.template_name, context)
+    
 class DeviceDetailView(View):
     template_name='device_details.html'
     page = 'device_details'
-
     
     def get(self, request, device_id):
         device = get_object_or_404(Device, id=device_id)
@@ -77,6 +78,7 @@ class DeviceDetailView(View):
 
 class DeviceCreateView(View):
     template_name='device_form.html'
+    page='device_form'
     def get(self, request):
         form = DeviceForm()
         context ={'form': form}
@@ -88,6 +90,39 @@ class DeviceCreateView(View):
             form.save()
             return redirect('home')
         context={'form': form}
+        return render(request, self.template_name, context)
+    
+class CompanyCreateView(View):
+    template_name='device_form.html'
+    page='company_form'
+    def get(self, request):
+        form = CompanyForm()
+        context ={'form': form, 'page':self.page}
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = CompanyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        context={'form': form, 'page':self.page}
+        return render(request, self.template_name, context)
+
+class EmployeeCreateView(View):
+    template_name='device_form.html'
+    page='employee_form'
+
+    def get(self, request):
+        form = EmployeeForm()
+        context ={'form': form}
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        context={'form': form, 'page':self.page}
         return render(request, self.template_name, context)
 
 class DeviceUpdateView(View):
@@ -113,7 +148,7 @@ class CompanyDetailView(View):
         context={'company': company, 'employees': employees, 'page': self.page}
         return render(request, self.template_name,context)
 
-class DeviceCheckoutView(View):
+class CheckoutView(View):
     template_name = 'checkout_device.html'
 
     def get(self, request):
@@ -125,7 +160,7 @@ class DeviceCheckoutView(View):
         form = CheckoutForm(request.POST)
         if form.is_valid():
             try:
-                staff_member = Staff.objects.get(user=request.user)
+                staff_member = get_object_or_404(Staff,user=request.user)
                 
             except ObjectDoesNotExist:
                 return HttpResponse("You don't have permission to perform this action.")
@@ -134,7 +169,7 @@ class DeviceCheckoutView(View):
             checkout_instance.assigned_by = staff_member
             
             device_id= form.cleaned_data['device']
-            device = Device.objects.get(id=device_id.id)
+            device = get_object_or_404(Device,id=device_id.id)
             device.checked_out=True
             device.save()
             
@@ -147,3 +182,23 @@ class DeviceCheckoutView(View):
         context = {'form': form}
         return render(request, self.template_name, context)
     
+class ReturnView(View):
+    template_name='return_device.html'
+    def get(self, request, checkout_log_id):
+        checkout_log_device = get_object_or_404(CheckoutLog,id=checkout_log_id)
+        context={'checkout_log_id': checkout_log_id}
+        return render(request, self.template_name, context)
+    
+    def post(self, request, checkout_log_id):
+        checkout_log_device = get_object_or_404(CheckoutLog,id=checkout_log_id)
+        
+        device= checkout_log_device.device        
+        device.checked_out=False
+        device.save()
+        
+        checkout_log_device.return_date=timezone.now()
+        checkout_log_device.save()
+        
+        return redirect('home')
+        
+       

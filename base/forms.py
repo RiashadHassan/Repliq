@@ -1,11 +1,20 @@
 from django.forms import ModelForm
-from .models import Device, CheckoutLog
+from .models import Device, CheckoutLog, Company, Employee
 
 class DeviceForm(ModelForm):
     class Meta:
         model = Device
+        exclude= ['checked_out']
+        
+class CompanyForm(ModelForm):
+    class Meta:
+        model = Company
         fields= '__all__'
         
+class EmployeeForm(ModelForm):
+    class Meta:
+        model = Employee
+        fields= '__all__'
         
 class CheckoutForm(ModelForm):
     class Meta:

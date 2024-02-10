@@ -1,9 +1,15 @@
 {% extends "main.html" %}
 {%block content%}
 <h1>Return Device</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-</form>
+
+<div>
+    <h2>Return Device</h2>
+    <p>Are you sure you want to return this device?</p>
+    <form method="post" action="{% url 'return_device' checkout_log_id %}">
+        {% csrf_token %}
+        <input type="submit" value="Return">
+    </form>
+</div>
+
+
 {%endblock content%}

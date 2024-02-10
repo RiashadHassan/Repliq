@@ -19,11 +19,17 @@
             <li><a href="{% url 'company_details' company.id %}">{{ company.name }}</a></li>
         {% endfor %}
         </ul>
+        <a href="{% url 'company_create' %}">Add Company</a>
+
     </div>
 
     <div> <a href="{% url 'checkout_device' %}"><h2>Checkout a device</h2></a>
     </div>
-    <div>{{request.user.username}}</div>
+    <div>
+        <strong>{{request.user.username}}</strong>
+        <button > <a href="{%url 'logout'%}"> Logout </a></button>
+    
+    </div>
 </div>
 
 <div class ='lower-container'>
@@ -44,27 +50,30 @@
     <div>
         <h2>Checked out Devices</h2>
         <ul>
-            {% for device in checked_out_devices %}
+            {% for checked_out_device in checked_out_devices %}
                 <li>
-                    <a href="{% url 'device_details' device.device.id %}">{{ device.device.name }}</a>
+                    <a href="{% url 'device_details' checked_out_device.device.id %}">{{ checked_out_device.device.name }}</a> 
                 </li>
             {% endfor %}
-        </ul>
+        </ul>      
     </div>
+
     <div>
         <h2>Checkout Log</h2>
         <ul>
-            {% for device in checked_out_devices %}
+            {% for checked_out_device in checked_out_devices %}
                 <li>
-                    <a href="{% url 'device_details' device.id %}">{{ device.device.name }}</a>
-                    from: {{device.assigned_date}} to: {{device.return_date}} 
+                    <a href="{% url 'device_details' checked_out_device.device.id %}">{{ checked_out_device.device.name }}</a>
+                    {%if checked_out_device.return_date %}
+                    from: {{checked_out_device.assigned_date}} to: {{checked_out_device.return_date}} 
+                    {%else%}
+                    from: {{checked_out_device.assigned_date}} - (Not yet returned)
+                    {%endif%}
                 </li>
+
             {% endfor %}
         </ul>
     </div>
 
 </div>
-
-
-
 {% endblock content %}
