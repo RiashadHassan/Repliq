@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Device, CheckoutLog, Company, Employee
+from .models import Device, CheckoutLog, Company, Employee, Staff
 
 class DeviceForm(ModelForm):
     class Meta:
@@ -10,6 +10,12 @@ class CompanyForm(ModelForm):
     class Meta:
         model = Company
         fields= '__all__'
+
+class StaffForm(ModelForm):
+    class Meta:
+        model = Staff
+        fields= '__all__'
+        
         
 class EmployeeForm(ModelForm):
     class Meta:

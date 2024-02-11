@@ -4,10 +4,9 @@ from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
-from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Company, Employee, Device, CheckoutLog, Staff
-from .forms import DeviceForm, CheckoutForm, CompanyForm, EmployeeForm
+from .forms import DeviceForm, CheckoutForm, CompanyForm, EmployeeForm, StaffForm
 
 class RegisterPage(View):
     template_name= 'login_register.html'
@@ -93,7 +92,7 @@ class DeviceCreateView(View):
         return render(request, self.template_name, context)
     
     
-''' For concern of sepration I have decided to use three different views(deviceCreate, companyCreate, employeeCreate)
+''' For concern of sepration I have decided to use four different views(deviceCreate, companyCreate, employeeCreate, staffCreate)
 to handle the same task with just different forms
 
 I could have used 'if 'device_create(name)' in request.post:
@@ -114,6 +113,22 @@ class CompanyCreateView(View):
 
     def post(self, request):
         form = CompanyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        context={'form': form, 'page':self.page}
+        return render(request, self.template_name, context)
+    
+class StaffCreateView(View):
+    template_name='device_form.html'
+    page='staff_form'
+    def get(self, request):
+        form = StaffForm()
+        context ={'form': form, 'page':self.page}
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = StaffForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('home')
@@ -164,19 +179,20 @@ class CheckoutView(View):
     template_name = 'checkout_device.html'
 
     def get(self, request):
+        try:
+            staff_member = get_object_or_404(Staff, user=request.user)                
+        except:
+            return HttpResponse("You don't have permission to perform this action. Only Staff members can checkout devices.")
         form = CheckoutForm()
         context= {'form': form}
         return render(request, self.template_name,context)
 
     def post(self, request):
+        
         form = CheckoutForm(request.POST)
-        if form.is_valid():
-            try:
-                staff_member = get_object_or_404(Staff,user=request.user)
-                
-            except ObjectDoesNotExist:
-                return HttpResponse("You don't have permission to perform this action.")
-            
+        if form.is_valid():   
+            staff_member = get_object_or_404(Staff, user=request.user)  
+                                   
             checkout_instance = form.save(commit=False)
             checkout_instance.assigned_by = staff_member
             

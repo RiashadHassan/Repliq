@@ -10,6 +10,8 @@ urlpatterns = [
     path('device/create/', views.DeviceCreateView.as_view(), name='device_create'),
     path('company/create/', views.CompanyCreateView.as_view(), name='company_create'),
     path('add-employee/', views.EmployeeCreateView.as_view(), name='employee_create'),
+    path('add-staff/', views.StaffCreateView.as_view(), name='staff_create'),
+
 
 
 
